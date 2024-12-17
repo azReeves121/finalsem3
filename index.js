@@ -55,9 +55,10 @@ app.ws("/ws", (socket) => {
 });
 
 // Routes
-app.get("/", (req, res) => {
-  if (req.session.user?.id) return res.redirect("/dashboard");
-  res.render("index/unauthenticatedIndex");
+app.get("/dashboard", async (req, res) => {
+  if (!req.session.user?.id) return res.redirect("/login");
+  const polls = await Poll.find();
+  res.render("index/authenticatedIndex", { user: req.session.user, polls });
 });
 
 app.get("/login", (req, res) => {
@@ -96,16 +97,17 @@ app.get("/dashboard", async (req, res) => {
 });
 
 app.get("/createPoll", (req, res) => {
-  if (!req.session.user?.id) return res.redirect("/");
+  if (!req.session.user?.id) return res.redirect("/login");
   res.render("createPoll");
 });
 
 app.post("/createPoll", async (req, res) => {
   const { question, options } = req.body;
-  const formattedOptions = Object.values(options).map((option) => ({
-    answer: option,
-    votes: 0,
-  }));
+  if (!question || !options || Object.keys(options).length === 0) {
+    return res.render("createPoll", {
+      errorMessage: "Please provide all details!",
+    });
+  }
   const error = await onCreateNewPoll(question, formattedOptions);
   if (error) {
     return res.render("createPoll", { errorMessage: error });
