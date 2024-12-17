@@ -6,7 +6,31 @@
     <title>Dashboard</title>
   </head>
   <body>
-    <h1>Welcome to the Dashboard</h1>
-    <p>You're successfully logged in!</p>
+    <h1>Welcome, <%= user.username %>!</h1>
+    <p>Your dashboard for managing polls and data.</p>
+
+    <h2>Your Polls</h2>
+    <% if (polls && polls.length > 0) { %>
+    <ul>
+      <% polls.forEach(function(poll) { %>
+      <li><strong><%= poll.title %></strong><br /><%= poll.description %></li>
+      <% }) %>
+    </ul>
+    <% } else { %>
+    <p>No polls available.</p>
+    <% } %>
+
+    <h2>Create a New Poll</h2>
+    <form action="/create-poll" method="POST">
+      <div>
+        <label for="title">Poll Title</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+      <button type="submit">Create Poll</button>
+    </form>
   </body>
 </html>
